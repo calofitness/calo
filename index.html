@@ -940,14 +940,18 @@ async function init() {
   loader.off();
 }
 
-/** Danh sách ~3.000 món lưu sẵn trên máy: chỉ tải lại khi Sheet có món mới / món bị sửa (mã foodsVer khác). */
+/**
+ * Món ăn (~3.000), món ghép, hoạt động lưu sẵn trên máy: chỉ tải lại khi Sheet có thay đổi (mã phiên bản khác).
+ * Gửi cả foodsVer để máy chủ bản cũ (chưa biết staticVer) vẫn bỏ được danh sách món.
+ */
 async function bootstrap() {
   let saved = null;
   try { saved = JSON.parse(store.get('calo.foods') || 'null'); } catch (e) {}
-  const ok = saved && saved.ver && Array.isArray(saved.foods);
-  const b = await api('getBootstrap', { foodsVer: ok ? saved.ver : '' });
-  if (b.foods) store.set('calo.foods', JSON.stringify({ ver: b.foodsVer, foods: b.foods }));
-  else b.foods = ok ? saved.foods : [];
+  const ok = saved && saved.ver && ['foods', 'addons', 'activities'].every(k => Array.isArray(saved[k]));
+  const b = await api('getBootstrap', ok ? { staticVer: saved.ver, foodsVer: saved.ver } : {});
+  if (b.foods && b.addons && b.activities)
+    store.set('calo.foods', JSON.stringify({ ver: b.foodsVer, foods: b.foods, addons: b.addons, activities: b.activities }));
+  ['foods', 'addons', 'activities'].forEach(k => { if (!b[k]) b[k] = ok ? saved[k] : []; });
   return b;
 }
 

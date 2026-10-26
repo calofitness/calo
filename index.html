@@ -13,14 +13,14 @@
 <style>
 /* ================================================================ tokens
    Tối, tối giản, xanh lam là màu chính. Màu theo ý nghĩa:
-   volt/go = xanh lam: nút, chọn, "đạt", tập luyện · over = xanh đậm (+ icon lửa): vượt mục tiêu calo
-   flame = hổ phách: calo · cyan = xanh biển: nước · red = ngọn lửa, lỗi
+   volt/go = xanh lam: nút, chọn, "đạt", tập luyện · over = cam đỏ: vượt mục tiêu calo
+   flame = hổ phách: calo · cyan = xanh biển: nước · red = lỗi, ngọn lửa của chuỗi ngày (lửa chỉ dùng cho chuỗi)
    cal-1..4 = các sắc hổ phách cho từng bữa · amber = bạc cho chất béo */
 :root{
   --bg:#0A0D12; --s1:#11161D; --s2:#171D26; --line:#1F2733; --line-2:#2C3644;
   --ink:#E8EDF4; --ink-2:#B4BFCD; --muted:#7A8596;
   --volt:#4F7CFF; --volt-ink:#9DB5FF; --on-volt:#FFFFFF; --go:#4F7CFF;
-  --flame:#FFB547; --cyan:#22B3F2; --red:#FF5A5F; --over:#2747C9; --amber:#AEB8C6;
+  --flame:#FFB547; --cyan:#22B3F2; --red:#FF5A5F; --over:#F2683A; --amber:#AEB8C6;
   --cal-1:#FFD58F; --cal-2:#FFB547; --cal-3:#DE8B1C; --cal-4:#FFEBC9;
   --track:rgba(255,255,255,.06);
   --display:"Inter Tight",Inter,system-ui,sans-serif;
@@ -111,6 +111,7 @@ header.top{position:sticky;top:0;z-index:5;background:rgba(10,13,18,.86);backdro
 .kicker{font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}
 .headline{font-family:var(--display);font-weight:600;font-size:26px;line-height:1.18;letter-spacing:-.025em;margin-top:6px}
 .headline em{font-style:inherit;color:var(--volt-ink)}
+.ov,.sect .meta.ov{color:var(--over)}   /* chữ/số "vượt mục tiêu calo" – cùng màu ô Vượt ở lịch, biểu đồ, bảng tuần */
 .sect{display:flex;align-items:baseline;justify-content:space-between;margin:28px 0 10px}
 .sect h2{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.02em}
 .sect .meta{font-size:13px;color:var(--muted);font-weight:500}
@@ -136,6 +137,7 @@ header.top{position:sticky;top:0;z-index:5;background:rgba(10,13,18,.86);backdro
 .remain .num{font-size:50px;display:block;margin:4px 0 12px}
 .remain .num small{font-family:Inter,sans-serif;font-size:15px;color:var(--muted);font-weight:500;margin-left:4px;letter-spacing:0}
 .remain.over .num{color:var(--ink)}
+.remain.over .k{color:var(--over)}
 .remain .k svg.i{width:14px;height:14px;color:var(--red);vertical-align:-2px;margin-right:2px}
 .leg{display:grid;gap:6px}
 .leg div{display:grid;grid-template-columns:10px auto 1fr;gap:8px;align-items:baseline;font-size:13px}
@@ -150,7 +152,7 @@ header.top{position:sticky;top:0;z-index:5;background:rgba(10,13,18,.86);backdro
 .deficit .dh{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .deficit .dh .k{font-size:12px;font-weight:500;color:var(--ink-2);text-transform:uppercase;letter-spacing:.09em}
 .chip-s{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:rgba(79,124,255,.18);color:var(--volt-ink);white-space:nowrap}
-.chip-s.warn{background:rgba(255,90,95,.14);color:#FF8A8E}
+.chip-s.warn{background:rgba(242,104,58,.16);color:#FF9A6E}
 .deficit .dv{display:flex;align-items:baseline;gap:8px;margin:10px 0 14px}
 .deficit .dv .num{font-size:56px}
 .deficit .dv small{font-size:15px;color:var(--muted);font-weight:500}
@@ -183,9 +185,7 @@ header.top{position:sticky;top:0;z-index:5;background:rgba(10,13,18,.86);backdro
 .heat .h{font-size:11px;font-weight:600;color:var(--muted);text-align:center}
 .heat i{aspect-ratio:1;border-radius:6px;background:var(--track);position:relative}
 .heat i.ok{background:var(--go)}
-.heat i.over{background:var(--over);display:grid;place-items:center;color:var(--red)}
-.heat i.over svg{width:55%;height:55%;fill:currentColor;stroke:none}
-.fl{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin-right:4px;fill:var(--red)}
+.heat i.over{background:var(--over)}
 .heat i.part{background:var(--line-2)}
 .heat i.void{background:transparent}
 .heat i.today{outline:2px solid var(--ink);outline-offset:1px}
@@ -236,7 +236,7 @@ header.top{position:sticky;top:0;z-index:5;background:rgba(10,13,18,.86);backdro
 .ck{width:24px;height:24px;border-radius:7px;border:2px solid var(--line-2);display:grid;place-items:center;flex:none;background:transparent;color:var(--on-volt);padding:0}
 .ck svg.i{width:15px;height:15px;stroke-width:3}
 .ck.ok{background:var(--volt);border-color:var(--volt)}
-.ck.fail{background:var(--over);border-color:var(--over);color:var(--red)}
+.ck.fail{background:var(--over);border-color:var(--over);color:#fff}
 .ck.fail svg.i.fill{fill:currentColor;stroke:none}
 button.ck{cursor:pointer}
 li.done .name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line-2)}
@@ -254,7 +254,7 @@ li.done .trow .name{color:var(--muted);text-decoration:line-through;text-decorat
 .trow .st{width:22px;height:22px;border-radius:50%;border:2px dashed var(--line-2);display:grid;place-items:center;flex:none;color:var(--on-volt)}
 .trow .st svg.i{width:13px;height:13px;stroke-width:3}
 .trow .st.ok{background:var(--go);border:0}
-.trow .st.fail{background:var(--over);border:0;color:var(--red)}
+.trow .st.fail{background:var(--over);border:0;color:#fff}
 .trow .st.fail svg.i{fill:currentColor;stroke:none}
 .trow .chev{color:var(--muted);flex:none;display:grid}
 .trow .chev svg.i{width:18px;height:18px}
@@ -400,8 +400,7 @@ table.wk{width:100%;border-collapse:collapse;font-size:13.5px}
 .wk tfoot td{font-weight:700}
 .mk{display:inline-block;width:20px;height:20px;line-height:20px;border-radius:6px;text-align:center;font-weight:800;font-size:12px}
 .mk.ok{background:rgba(79,124,255,.2);color:var(--volt-ink)} .mk.no{background:var(--track);color:var(--muted)} .mk.na{color:var(--line-2)}
-.mk.over{background:var(--over);color:var(--red);display:inline-grid;place-items:center;vertical-align:middle}
-.mk.over svg{width:12px;height:12px;fill:currentColor}
+.mk.over{background:var(--over);color:#fff}
 
 /* hồ sơ */
 .phead{display:flex;align-items:center;gap:14px;padding:18px 0 4px}
@@ -1117,7 +1116,7 @@ function heatGrid(history, current) {
     const h = byDate[d];
     const cls = !h ? 'void' : !h.eaten ? '' : h.eaten > h.target ? 'over' : h.complete ? 'ok' : 'part';
     const tip = h ? `${ddmm(d)}: ${h.eaten ? nf(h.eaten) + ' / ' + nf(h.target) + ' kcal' : 'chưa ghi'}` : '';
-    cells.push(`<i class="${cls}${d === current ? ' today' : ''}" title="${tip}">${cls === 'over' ? flameSvg() : ''}</i>`);
+    cells.push(`<i class="${cls}${d === current ? ' today' : ''}" title="${tip}"></i>`);
   }
   return `<div class="heat">${['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(x => `<span class="h">${x}</span>`).join('')}${cells.join('')}</div>`;
 }
@@ -1137,8 +1136,7 @@ function barChart(items, opts) {
     ${items.map((d, i) => { const x = pl + i * bw + bw * .2, w = bw * .6;
       return `${d.v ? `<rect x="${x}" y="${y(d.v)}" width="${w}" height="${H - pb - y(d.v)}" rx="4"
           fill="${d.faded ? 'var(--line-2)' : `url(#${id}-${d.color})`}"><title>${esc(d.title || '')}</title></rect>
-          ${opts.values ? `<text class="v" x="${x + w / 2}" y="${y(d.v) - 4}" text-anchor="middle">${opts.values(d.v)}</text>` : ''}
-          ${d.flame ? `<g transform="translate(${x + w / 2 - 7} ${y(d.v) - 17}) scale(.58)" fill="var(--red)">${ICONS.flame}</g>` : ''}` : ''}
+          ${opts.values ? `<text class="v" x="${x + w / 2}" y="${y(d.v) - 4}" text-anchor="middle">${opts.values(d.v)}</text>` : ''}` : ''}
         ${d.target != null ? `<line x1="${x - 4}" x2="${x + w + 4}" y1="${y(d.target)}" y2="${y(d.target)}" stroke="var(--ink-2)"
           stroke-width="2" stroke-linecap="round" ${opts.dashTarget ? 'stroke-dasharray="3 3"' : ''}/>` : ''}
         <text x="${x + w / 2}" y="${H - 5}" text-anchor="middle" ${d.strong ? 'style="fill:var(--ink);font-weight:700"' : ''}>${d.label}</text>`; }).join('')}
@@ -1153,7 +1151,7 @@ const coach = recs => `<div class="coach"><div class="badge">${icon('whistle')}<
 function motivate(t, done, total, isToday) {
   if (!isToday) return done === total ? 'Ngày này <em>hoàn hảo</em>' : 'Xem lại và <em>ghi bù</em>';
   if (!t.eaten) return 'Ngày mới. <em>Ghi bữa đầu tiên</em> nào!';
-  if (t.eaten > t.target) return `Vượt ${nf(t.eaten - t.target)} kcal. <em>${walkMin(t.eaten - t.target, t.weight)} phút đi bộ</em> là cân bằng`;
+  if (t.eaten > t.target) return `<span class="ov">Vượt ${nf(t.eaten - t.target)} kcal</span>. <em>${walkMin(t.eaten - t.target, t.weight)} phút đi bộ</em> là cân bằng`;
   if (done === total) return '<em>Hoàn hảo!</em> Đã xong mọi việc hôm nay';
   if (t.minutes < t.exerciseGoal) return `Còn <em>${t.exerciseGoal - t.minutes} phút tập</em> để đóng vòng`;
   if (t.waterMl < t.waterGoalMl) return `Thêm <em>${Math.ceil((t.waterGoalMl - t.waterMl) / (t.glassMl || 250))} ly nước</em> nữa thôi`;
@@ -1185,15 +1183,15 @@ function renderToday() {
 
     <section class="card hero">
       ${ringsSvg([
-        { name: 'Calo', v: t.target ? t.eaten / t.target : 0, c: 'var(--flame)' },
+        { name: 'Calo', v: t.target ? t.eaten / t.target : 0, c: over ? 'var(--over)' : 'var(--flame)' },
         { name: 'Tập', v: t.exerciseGoal ? t.minutes / t.exerciseGoal : 0, c: 'var(--go)' },
         { name: 'Nước', v: t.waterGoalMl ? t.waterMl / t.waterGoalMl : 0, c: 'var(--cyan)' },
       ], score, 'điểm')}
       <div class="remain${over ? ' over' : ''}">
-        <div class="k">${over ? icon('flame') + 'Đã vượt' : 'Còn ăn được'}</div>
+        <div class="k">${over ? 'Đã vượt' : 'Còn ăn được'}</div>
         <span class="num">${nf(Math.abs(remain))}<small>kcal</small></span>
         <div class="leg">
-          <div><i style="background:var(--flame)"></i><span>Calo</span><b>${nf(t.eaten)}<small> / ${nf(t.target)}</small></b></div>
+          <div><i style="background:var(${over ? '--over' : '--flame'})"></i><span>Calo</span><b>${nf(t.eaten)}<small> / ${nf(t.target)}</small></b></div>
           <div><i style="background:var(--go)"></i><span>Tập</span><b>${t.minutes}<small> / ${t.exerciseGoal} phút</small></b></div>
           <div><i style="background:var(--cyan)"></i><span>Nước</span><b>${liters(t.waterMl)}<small> / ${liters(t.waterGoalMl)} l</small></b></div>
         </div>
@@ -1215,7 +1213,7 @@ function renderToday() {
     <div class="sect"><h2>4 tuần qua</h2><span class="meta">Kỷ lục ${st.best} ngày</span></div>
     <section class="card">
       ${heatGrid(d.history, d.date)}
-      <div class="heat-foot"><div class="keys"><span><i style="background:var(--go)"></i>Đạt</span><span><i style="background:var(--over)"></i>${flameSvg('fl')}Vượt</span>
+      <div class="heat-foot"><div class="keys"><span><i style="background:var(--go)"></i>Đạt</span><span><i style="background:var(--over)"></i>Vượt</span>
         <span><i style="background:var(--line-2)"></i>Ghi thiếu</span><span><i style="background:var(--track);outline:1px solid var(--line)"></i>Chưa ghi</span></div></div>
     </section>
 
@@ -1288,18 +1286,17 @@ function goMeal(m) { S.meal = m; show('food'); }
 function deficitCard(t) {
   const need = Math.max(t.tdee - t.baseTarget, 1), d = t.deficit;
   const surplus = t.eaten && d < 0, reached = t.eaten && d >= need;
-  const chip = !t.eaten ? '' : surplus ? `<span class="chip-s warn">${flameSvg('fl')}Dư calo</span>`
+  const chip = !t.eaten ? '' : surplus ? '<span class="chip-s warn">Dư calo</span>'
     : !t.complete ? '<span class="chip-s">Tạm tính</span>' : reached ? '<span class="chip-s">Đạt mục tiêu</span>' : '';
   return `<section class="card deficit">
     <div class="dh"><span class="k">${surplus ? 'Dư calo hôm nay' : 'Thâm hụt calo'}</span>${chip}</div>
-    <div class="dv"><span class="num">${!t.eaten ? '–' : (surplus ? '+' : '') + nf(Math.abs(d))}</span><small>kcal</small>
+    <div class="dv"><span class="num${surplus ? ' ov' : ''}">${!t.eaten ? '–' : (surplus ? '+' : '') + nf(Math.abs(d))}</span><small>kcal</small>
       <span class="fat">${t.eaten && !surplus ? `<b>≈ ${nf(t.fatLossG)} g</b>mỡ được đốt` : surplus ? '<b>0 g</b>mỡ giảm' : ''}</span></div>
     <div class="dbar" role="img" aria-label="Thâm hụt ${nf(d)} trên mục tiêu ${nf(need)} kcal"><i style="width:${t.eaten && !surplus ? clamp01(d / need) * 100 : 0}%"></i></div>
     <div class="dfoot"><span>Cần khoảng <b>${nf(need)}</b> kcal/ngày</span>
-      <span>${!t.eaten ? 'Ghi bữa ăn để tính' : surplus ? 'Đi bộ ' + walkMin(-d, t.weight) + ' phút để cân bằng' : reached ? 'Vượt ' + nf(d - need) + ' kcal' : 'Còn ' + nf(need - d) + ' kcal'}</span></div>
+      <span>${!t.eaten ? 'Ghi bữa ăn để tính' : surplus ? 'Đi bộ ' + walkMin(-d, t.weight) + ' phút để cân bằng' : reached ? 'Hơn mức cần ' + nf(d - need) + ' kcal' : 'Còn ' + nf(need - d) + ' kcal'}</span></div>
   </section>`;
 }
-const flameSvg = cls => `<svg class="${cls || ''}" viewBox="0 0 24 24" aria-hidden="true">${ICONS.flame}</svg>`;
 
 // ================================================================ NƯỚC
 const liters = ml => dec(Math.round((ml || 0) / 10) / 100, 2);
@@ -1758,6 +1755,7 @@ function renderFood() {
   });
   const t = DAY.totals;
   $('#foodTotal').textContent = t.eaten > t.target ? 'vượt ' + nf(t.eaten - t.target) + ' kcal' : 'còn ' + nf(t.target - t.eaten) + ' kcal';
+  $('#foodTotal').classList.toggle('ov', t.eaten > t.target);
   $('#foodSum').textContent = nf(t.eaten) + ' / ' + nf(t.target) + ' kcal';
   const skipped = DAY.skipped || [];
   const groups = BOOT.meals.map(m => ({ m, items: DAY.foods.filter(f => f.meal === m), skip: skipped.includes(m) })).filter(g => g.items.length || g.skip);
@@ -2093,7 +2091,7 @@ function renderWeek(w) {
   {
     const s = w.summary;
     const mark = (b, isCal) => b == null ? '<span class="mk na">–</span>' : b ? '<span class="mk ok">✓</span>'
-      : isCal ? `<span class="mk over" title="Vượt mục tiêu calo">${flameSvg()}</span>` : '<span class="mk no">✕</span>';
+      : isCal ? '<span class="mk over" title="Vượt mục tiêu calo">↑</span>' : '<span class="mk no">✕</span>';
     const kg = x => x == null ? '–' : (x > 0 ? '+' : x < 0 ? '−' : '') + dec(Math.abs(x), 2);
     const head = !s.daysLogged ? 'Bắt đầu ghi để <em>thấy tiến độ</em>'
       : s.paceKgPerWeek >= s.goalLossKg * .8 ? `Đúng nhịp <em>${dec(s.paceKgPerWeek, 2)} kg/tuần</em>`
@@ -2126,18 +2124,18 @@ function renderWeek(w) {
       <div class="sect"><h2>Calo mỗi ngày</h2><span class="meta">TB ${nf(s.avgEaten)} kcal</span></div>
       <section class="card">${barChart(w.days.map(d => ({
           label: d.dow, v: d.eaten, target: d.target, faded: d.eaten && !d.complete,
-          color: d.eaten > d.target ? 'over' : 'go', flame: d.eaten > d.target, title: `${d.dow} ${ddmm(d.date)}: ${nf(d.eaten)} / ${nf(d.target)} kcal`,
+          color: d.eaten > d.target ? 'over' : 'go', title: `${d.dow} ${ddmm(d.date)}: ${nf(d.eaten)} / ${nf(d.target)} kcal`,
         })), { tick: v => v ? dec(v / 1000) + 'k' : 0, aria: 'Calo ăn mỗi ngày so với mục tiêu' })}
-        <div class="keys" style="margin-top:6px"><span><i style="background:var(--go)"></i>Trong mục tiêu</span><span><i style="background:var(--over)"></i>${flameSvg('fl')}Vượt</span>
+        <div class="keys" style="margin-top:6px"><span><i style="background:var(--go)"></i>Trong mục tiêu</span><span><i style="background:var(--over)"></i>Vượt</span>
           <span><i style="background:var(--line-2)"></i>Ghi thiếu</span><span>— mục tiêu ngày</span></div></section>
 
       <div class="sect"><h2>Chi tiết</h2></div>
       <section class="card" style="overflow-x:auto"><table class="wk">
         <tr><th>Ngày</th><th>Ăn</th><th>Thâm hụt</th><th>Calo</th><th>Tập</th><th>Nước</th></tr>
         ${w.days.map(d => `<tr><td><b>${d.dow}</b> <span class="muted">${d.date.slice(8)}</span></td><td>${d.eaten ? nf(d.eaten) + (d.complete ? '' : '*') : '–'}</td>
-          <td>${d.deficit == null ? '–' : nf(d.deficit)}</td>
+          <td${d.deficit < 0 ? ' class="ov"' : ''}>${d.deficit == null ? '–' : nf(d.deficit)}</td>
           <td>${mark(d.okKcal, true)}</td><td>${mark(d.okEx)}</td><td title="${liters(d.waterMl)} lít">${mark(d.okWater)}</td></tr>`).join('')}
-        <tfoot><tr><td>Cả tuần</td><td>${nf(s.avgEaten)}<span class="muted"> tb</span></td><td>${nf(s.totalDeficit)}</td><td></td><td></td><td></td></tr></tfoot>
+        <tfoot><tr><td>Cả tuần</td><td>${nf(s.avgEaten)}<span class="muted"> tb</span></td><td${s.totalDeficit < 0 ? ' class="ov"' : ''}>${nf(s.totalDeficit)}</td><td></td><td></td><td></td></tr></tfoot>
       </table>${w.days.some(d => d.why) ? `<div class="hint">* Chưa tính vào thâm hụt và ước tính: ${w.days.filter(d => d.why).map(d => `<b>${d.dow} ${ddmm(d.date)}</b> ${esc(d.why)}`).join(' · ')}.
         Bữa nào không ăn thì đánh dấu "Bỏ bữa" để ngày đó được tính.</div>` : ''}</section>
 

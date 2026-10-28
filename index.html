@@ -2374,10 +2374,15 @@ function renderProfile(p) {
     const nextMs = [.25, .5, .75, 1].find(m => m > prog + 1e-9);
     const nextKg = nextMs ? s.startWeight - need * nextMs : null;
     let eta = 'Cân ít nhất 2 lần để xem dự kiến ngày về đích.';
-    if (slope != null) {
-      eta = slope < 0 && s.currentWeight > s.goalWeight
-        ? `Theo nhịp ${dec(-slope * 7, 2)} kg/tuần, về đích khoảng <b>${addDays(ws[ws.length - 1].date, Math.ceil((s.currentWeight - s.goalWeight) / -slope)).split('-').reverse().join('/')}</b>.`
-        : 'Cân nặng chưa giảm trong 3 tuần gần đây. Xem lại khẩu phần và lịch tập.';
+    if (s.currentWeight <= s.goalWeight) eta = 'Bạn đã chạm cân mục tiêu. Giữ nhịp ăn hiện tại để duy trì.';
+    else if (slope != null) {
+      // xu hướng tính trên tối đa 21 ngày gần nhất – nói đúng số ngày thật sự có dữ liệu
+      const lastD = ws[ws.length - 1].date, firstD = ws.find(w => w.date >= addDays(lastD, -21)).date;
+      const span = Math.round((Date.parse(lastD) - Date.parse(firstD)) / 864e5), when = span >= 21 ? '3 tuần' : span + ' ngày';
+      const early = span < 7 ? ' Mới cân vài ngày nên dao động 1–2 kg do nước, muối là bình thường; cân thêm 1–2 tuần để thấy xu hướng.' : ' Xem lại khẩu phần và lịch tập.';
+      eta = slope < 0
+        ? `Theo nhịp ${dec(-slope * 7, 2)} kg/tuần, về đích khoảng <b>${addDays(lastD, Math.ceil((s.currentWeight - s.goalWeight) / -slope)).split('-').reverse().join('/')}</b>.`
+        : (slope > 0 ? `Cân nặng đang tăng trong ${when} gần đây.` : `Cân nặng chưa giảm trong ${when} gần đây.`) + early;
     }
     v.innerHTML = `
       <section class="phead"><div class="av lg">${esc(initial(u.name))}</div>
@@ -2385,11 +2390,14 @@ function renderProfile(p) {
         <button class="btn sec" onclick="openUser(PROFILE.user)">Sửa hồ sơ</button></section>
 
       <section class="card journey" style="margin-top:12px">
-        <div class="kicker">Đã giảm</div>
-        <span class="num">${lost > 0 ? '−' : ''}${dec(Math.abs(lost))}<small> / ${dec(need)} kg</small></span>
+        ${lost < 0 ? `<div class="kicker">Đang tăng so với lúc bắt đầu</div>
+        <span class="num">+${dec(-lost)}<small> kg</small></span>`
+        : `<div class="kicker">Đã giảm</div>
+        <span class="num">${dec(lost)}<small> / ${dec(need)} kg</small></span>`}
         <div class="track"><i style="width:${prog * 100}%"></i>${[.25, .5, .75].map(m => `<b style="left:${m * 100}%"></b>`).join('')}</div>
         <div class="ends"><span>Bắt đầu <b>${dec(s.startWeight)}</b></span><span>Hiện tại <b>${dec(s.currentWeight)}</b></span><span>Mục tiêu <b>${dec(s.goalWeight)}</b></span></div>
-        ${nextKg != null ? `<div class="hint">Cột mốc tiếp theo: <b>${dec(nextKg)} kg</b> (${Math.round(nextMs * 100)}% chặng đường).</div>` : ''}
+        ${lost < 0 ? `<div class="hint">Cần giảm <b>${dec(-lost)} kg</b> để về lại mức bắt đầu (${dec(s.startWeight)} kg), rồi thêm ${dec(need)} kg nữa tới mục tiêu.</div>`
+          : nextKg != null ? `<div class="hint">Cột mốc tiếp theo: <b>${dec(nextKg)} kg</b> (${Math.round(nextMs * 100)}% chặng đường).</div>` : ''}
       </section>
 
       ${BOOT.fitness ? `${bodySection(p.body, s)}

@@ -2263,6 +2263,10 @@ function renderWeek(w) {
     const mark = (b, isCal) => b == null ? '<span class="mk na">–</span>' : b ? '<span class="mk ok">✓</span>'
       : isCal ? '<span class="mk over" title="Vượt mục tiêu calo">↑</span>' : '<span class="mk no">✕</span>';
     const kg = x => x == null ? '–' : (x > 0 ? '+' : x < 0 ? '−' : '') + dec(Math.abs(x), 2);
+    // mốc so sánh của "Cân thực tế": lần cân đầu → lần cân cuối trong tuần (khác Hồ sơ: so với cân lúc bắt đầu)
+    const wd = w.days.filter(d => d.weight != null), wa = wd[0], wb = wd[wd.length - 1];
+    const wFrom = `<div class="small muted">${wd.length > 1 ? `từ ${dec(wa.weight)} kg (${ddmm(wa.date)})<br>đến ${dec(wb.weight)} kg (${ddmm(wb.date)})`
+      : wd.length ? `mới cân 1 lần (${ddmm(wa.date)}), cần thêm 1 lần để so` : 'chưa cân trong tuần'}</div>`;
     const head = !s.daysLogged ? 'Bắt đầu ghi để <em>thấy tiến độ</em>'
       : s.paceKgPerWeek >= s.goalLossKg * .8 ? `Đúng nhịp <em>${dec(s.paceKgPerWeek, 2)} kg/tuần</em>`
       : 'Thiếu một chút, <em>tăng tốc</em> tuần tới';
@@ -2283,8 +2287,9 @@ function renderWeek(w) {
 
       <div class="sect"><h2>Cân nặng</h2><span class="meta">thực tế vs ước tính</span></div>
       <section class="card vs">
-        <div><div class="kicker">Cân thực tế</div><span class="num">${kg(s.weightChange)}<small> kg</small></span></div>
-        <div><div class="kicker">Ước tính từ calo</div><span class="num" style="color:var(--muted)">${s.estLossKg ? kg(-s.estLossKg) : '–'}<small> kg</small></span></div>
+        <div><div class="kicker">Cân thực tế</div><span class="num">${kg(s.weightChange)}<small> kg</small></span>${wFrom}</div>
+        <div><div class="kicker">Ước tính từ calo</div><span class="num" style="color:var(--muted)">${s.estLossKg ? kg(-s.estLossKg) : '–'}<small> kg</small></span>
+          <div class="small muted">${s.daysLogged ? `từ ${s.daysLogged} ngày ghi đủ` : 'chưa có ngày ghi đủ'}</div></div>
       </section>
 
       <div class="sect"><h2>Thâm hụt cộng dồn</h2><span class="meta">mục tiêu ${dec(s.goalLossKg, 2)} kg/tuần</span></div>
@@ -2398,7 +2403,7 @@ function renderProfile(p) {
       <section class="card journey" style="margin-top:12px">
         ${lost < 0 ? `<div class="kicker">Đang tăng so với lúc bắt đầu</div>
         <span class="num">+${dec(-lost)}<small> kg</small></span>`
-        : `<div class="kicker">Đã giảm</div>
+        : `<div class="kicker">Đã giảm so với lúc bắt đầu</div>
         <span class="num">${dec(lost)}<small> / ${dec(need)} kg</small></span>`}
         <div class="track"><i style="width:${prog * 100}%"></i>${[.25, .5, .75].map(m => `<b style="left:${m * 100}%"></b>`).join('')}</div>
         <div class="ends"><span>Bắt đầu <b>${dec(s.startWeight)}</b></span><span>Hiện tại <b>${dec(s.currentWeight)}</b></span><span>Mục tiêu <b>${dec(s.goalWeight)}</b></span></div>

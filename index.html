@@ -2325,7 +2325,10 @@ function trendOf(ws) {
   const t0 = Date.parse(pts[0].date), xs = pts.map(w => (Date.parse(w.date) - t0) / 864e5), ys = pts.map(w => Number(w.weightKg));
   const mx = xs.reduce((a, b) => a + b) / xs.length, my = ys.reduce((a, b) => a + b) / ys.length;
   const den = xs.reduce((a, x) => a + (x - mx) ** 2, 0);
-  return den ? xs.reduce((a, x, i) => a + (x - mx) * (ys[i] - my), 0) / den : null;
+  if (!den) return null;
+  // làm tròn 0,001 kg/ngày: cân đi ngang có thể ra −1e-15 do sai số số thực → "về đích" sau hàng triệu năm, ngày lỗi
+  const slope = Math.round(xs.reduce((a, x, i) => a + (x - mx) * (ys[i] - my), 0) / den * 1000) / 1000;
+  return slope || 0;
 }
 function weightChart(ws, goal, slope) {
   if (ws.length < 2) return '<p class="muted small" style="margin:0">Cần ít nhất 2 lần cân để vẽ biểu đồ.</p>';
@@ -2380,8 +2383,11 @@ function renderProfile(p) {
       const lastD = ws[ws.length - 1].date, firstD = ws.find(w => w.date >= addDays(lastD, -21)).date;
       const span = Math.round((Date.parse(lastD) - Date.parse(firstD)) / 864e5), when = span >= 21 ? '3 tuần' : span + ' ngày';
       const early = span < 7 ? ' Mới cân vài ngày nên dao động 1–2 kg do nước, muối là bình thường; cân thêm 1–2 tuần để thấy xu hướng.' : ' Xem lại khẩu phần và lịch tập.';
-      eta = slope < 0
-        ? `Theo nhịp ${dec(-slope * 7, 2)} kg/tuần, về đích khoảng <b>${addDays(lastD, Math.ceil((s.currentWeight - s.goalWeight) / -slope)).split('-').reverse().join('/')}</b>.`
+      const days = slope < 0 ? Math.ceil((s.currentWeight - s.goalWeight) / -slope) : 0;
+      eta = slope < 0 && days > 3 * 365
+        ? `Theo nhịp ${dec(-slope * 7, 2)} kg/tuần thì còn hơn 3 năm mới về đích – giảm chậm quá, xem lại khẩu phần và lịch tập.`
+        : slope < 0
+        ? `Theo nhịp ${dec(-slope * 7, 2)} kg/tuần, về đích khoảng <b>${addDays(lastD, days).split('-').reverse().join('/')}</b>.`
         : (slope > 0 ? `Cân nặng đang tăng trong ${when} gần đây.` : `Cân nặng chưa giảm trong ${when} gần đây.`) + early;
     }
     v.innerHTML = `
